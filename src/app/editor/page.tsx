@@ -71,7 +71,7 @@ const testimonialSchema = z.object({
 });
 
 const socialMediaSchema = z.object({
-    platform: z.enum(["linkedin", "github", "twitter"]),
+    platform: z.enum(["linkedin", "github", "twitter", "instagram", "facebook", "whatsapp"]),
     url: z.string().url("Must be a valid URL"),
 });
 
@@ -261,7 +261,7 @@ export default function EditorPage() {
                         {socialFields.map((item, index) => (
                             <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
                                 <div className="flex justify-between items-center">
-                                    <h3 className="font-semibold text-capitalize">{item.platform || `Link ${index+1}`}</h3>
+                                    <h3 className="font-semibold capitalize">{item.platform || `Link ${index+1}`}</h3>
                                     <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => removeSocial(index)}>
                                         <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Social Media</span>
                                     </Button>
@@ -272,6 +272,9 @@ export default function EditorPage() {
                                         <option value="linkedin">LinkedIn</option>
                                         <option value="github">GitHub</option>
                                         <option value="twitter">Twitter</option>
+                                        <option value="instagram">Instagram</option>
+                                        <option value="facebook">Facebook</option>
+                                        <option value="whatsapp">WhatsApp</option>
                                       </select>
                                     </FormControl><FormMessage /></FormItem>
                                 )}/>

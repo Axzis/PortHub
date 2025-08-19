@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Linkedin, Github, Twitter, Quote, Calendar, Building, GraduationCap, Award, BookOpen, Briefcase, Users } from 'lucide-react';
+import { Globe, Linkedin, Github, Twitter, Quote, Calendar, Building, GraduationCap, Award, BookOpen, Briefcase, Users, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { PortfolioActions } from '@/components/portfolio-actions';
 
 async function getPortfolioData(username: string) {
@@ -35,6 +35,9 @@ const SocialIcon = ({ platform }: { platform: string }) => {
         case 'linkedin': return <Linkedin className="h-5 w-5" />;
         case 'github': return <Github className="h-5 w-5" />;
         case 'twitter': return <Twitter className="h-5 w-5" />;
+        case 'instagram': return <Instagram className="h-5 w-5" />;
+        case 'facebook': return <Facebook className="h-5 w-5" />;
+        case 'whatsapp': return <MessageCircle className="h-5 w-5" />;
         default: return <Globe className="h-5 w-5" />;
     }
 };
@@ -250,5 +253,3 @@ export default async function PortfolioPage({ params }: { params: { username: st
         </div>
     );
 }
-
-    
