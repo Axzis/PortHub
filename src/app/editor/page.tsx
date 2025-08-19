@@ -16,11 +16,12 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle, Square, Circle, AppWindow } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Instagram, Facebook, MessageCircle, Square, Circle, AppWindow, Globe, Briefcase, Users, Calendar, Award, BookOpen, Quote } from "lucide-react";
 import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
 
 const skillSchema = z.object({
   name: z.string().min(1, "Skill name is required"),
@@ -120,6 +121,18 @@ const defaultFormValues: PortfolioFormValues = {
     courses: [],
     testimonials: [],
     socialMedia: [],
+};
+
+const SocialIcon = ({ platform }: { platform: string }) => {
+    switch (platform) {
+        case 'linkedin': return <Linkedin className="h-5 w-5" />;
+        case 'github': return <Github className="h-5 w-5" />;
+        case 'twitter': return <Twitter className="h-5 w-5" />;
+        case 'instagram': return <Instagram className="h-5 w-5" />;
+        case 'facebook': return <Facebook className="h-5 w-5" />;
+        case 'whatsapp': return <MessageCircle className="h-5 w-5" />;
+        default: return <Globe className="h-5 w-5" />;
+    }
 };
 
 export default function EditorPage() {
@@ -602,37 +615,167 @@ export default function EditorPage() {
             <div className="sticky top-8">
               <h2 className="font-headline text-2xl font-bold mb-4">Live Preview</h2>
               <div className="border rounded-lg aspect-[9/16] overflow-y-auto p-4 bg-background text-foreground">
-                  <div className="text-center space-y-4">
-                    {watchedValues.profilePictureUrl ? 
-                        <Image src={watchedValues.profilePictureUrl} alt="profile" width={128} height={128} className={cn("mx-auto object-cover w-32 h-32", watchedValues.profilePictureShape)} /> 
-                        : 
-                        <div className={cn("w-32 h-32 bg-muted mx-auto", watchedValues.profilePictureShape)}/>
-                    }
-                    <h2 className="text-2xl font-bold font-headline">{watchedValues.fullName || "Your Name"}</h2>
-                    <p className="text-muted-foreground">{watchedValues.title || "Your Title"}</p>
-                    <p className="text-sm max-w-prose mx-auto">{watchedValues.bio || "Your bio will appear here."}</p>
-                  </div>
-                  <hr className="my-6" />
-                  <div>
-                    <h3 className="text-lg font-bold font-headline mb-4 text-center">Skills</h3>
-                    <div className="flex flex-wrap gap-2 justify-center">
-                        {Array.isArray(watchedValues.skills) && watchedValues.skills?.map((skill, i) => skill && skill.name && <span key={i} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm">{skill.name}</span>)}
-                    </div>
-                  </div>
-                   <hr className="my-6" />
-                   <div>
-                      <h3 className="text-lg font-bold font-headline mb-4 text-center">Projects</h3>
-                      <div className="space-y-6">
-                        {watchedValues.projects?.map((project, i) => (
-                           <div key={i} className="border rounded-lg p-4">
-                               {project.imageUrl && <Image src={project.imageUrl} alt={project.title} width={400} height={250} className="rounded-md w-full object-cover aspect-video mb-2" />}
-                               <h4 className="font-bold">{project.title || `Project ${i+1}`}</h4>
-                               <p className="text-sm text-muted-foreground">{project.description || "Project description..."}</p>
-                               {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline mt-2 inline-block">View Project</a>}
-                           </div>
-                        ))}
-                      </div>
-                   </div>
+                  <header className="flex flex-col sm:flex-row items-center gap-8 mb-12 text-center sm:text-left">
+                     <div className="relative">
+                        {watchedValues.profilePictureUrl ? 
+                            <Image src={watchedValues.profilePictureUrl} alt="profile" width={128} height={128} className={cn("mx-auto object-cover w-32 h-32 border-4 border-card shadow-md", watchedValues.profilePictureShape)} /> 
+                            : 
+                            <div className={cn("w-32 h-32 bg-muted mx-auto border-4 border-card shadow-md", watchedValues.profilePictureShape)}/>
+                        }
+                     </div>
+                     <div>
+                        <h1 className="text-4xl font-bold font-headline">{watchedValues.fullName || "Your Name"}</h1>
+                        <p className="text-xl text-muted-foreground mt-1">{watchedValues.title || "Your Title"}</p>
+                        <p className="mt-4 max-w-prose text-foreground/80">{watchedValues.bio || "Your bio will appear here."}</p>
+                        <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
+                            {watchedValues.website && (
+                                <a href={watchedValues.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-semibold text-accent hover:underline">
+                                    <Globe className="mr-2 h-4 w-4" />
+                                    Website
+                                </a>
+                            )}
+                            {Array.isArray(watchedValues.socialMedia) && watchedValues.socialMedia.map((social) => social.url && (
+                                <a key={social.platform} href={social.url} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-accent">
+                                    <SocialIcon platform={social.platform} />
+                                </a>
+                            ))}
+                        </div>
+                     </div>
+                </header>
+                  
+                <main className="space-y-12">
+                    {Array.isArray(watchedValues.skills) && watchedValues.skills.length > 0 && (
+                        <section id="skills">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Skills</h2>
+                            <div className="flex flex-wrap justify-center gap-2">
+                                {watchedValues.skills.map((skill, i) => skill && skill.name && (
+                                    <Badge key={i} variant="secondary" className="text-base px-3 py-1 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20">
+                                        {skill.name}
+                                    </Badge>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {Array.isArray(watchedValues.workExperiences) && watchedValues.workExperiences.length > 0 && (
+                        <section id="work-experience">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Work Experience</h2>
+                            <div className="relative border-l-2 border-primary/20 pl-6 space-y-8">
+                                {watchedValues.workExperiences.map((exp, index) => exp.role && (
+                                    <div key={index} className="relative">
+                                        <div className="absolute -left-[33px] top-1.5 h-4 w-4 rounded-full bg-primary" />
+                                        <p className="text-sm text-muted-foreground"><Briefcase className="inline-block mr-2 h-4 w-4" />{exp.startDate} - {exp.endDate || 'Present'}</p>
+                                        <h3 className="text-lg font-bold">{exp.role}</h3>
+                                        <p className="text-md text-accent">{exp.company}</p>
+                                        <p className="mt-1 text-foreground/80 text-sm">{exp.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {Array.isArray(watchedValues.organizationExperiences) && watchedValues.organizationExperiences.length > 0 && (
+                        <section id="organization-experience">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Organization Experience</h2>
+                            <div className="relative border-l-2 border-primary/20 pl-6 space-y-8">
+                                {watchedValues.organizationExperiences.map((exp, index) => exp.role && (
+                                    <div key={index} className="relative">
+                                        <div className="absolute -left-[33px] top-1.5 h-4 w-4 rounded-full bg-primary" />
+                                        <p className="text-sm text-muted-foreground"><Users className="inline-block mr-2 h-4 w-4" />{exp.startDate} - {exp.endDate || 'Present'}</p>
+                                        <h3 className="text-lg font-bold">{exp.role}</h3>
+                                        <p className="text-md text-accent">{exp.organization}</p>
+                                        <p className="mt-1 text-foreground/80 text-sm">{exp.description}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {Array.isArray(watchedValues.educations) && watchedValues.educations.length > 0 && (
+                        <section id="education">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Education</h2>
+                            <div className="relative border-l-2 border-primary/20 pl-6 space-y-8">
+                                {watchedValues.educations.map((edu, index) => edu.degree && (
+                                    <div key={index} className="relative">
+                                        <div className="absolute -left-[33px] top-1.5 h-4 w-4 rounded-full bg-primary" />
+                                        <p className="text-sm text-muted-foreground"><Calendar className="inline-block mr-2 h-4 w-4" />{edu.startDate} - {edu.endDate || 'Present'}</p>
+                                        <h3 className="text-lg font-bold">{edu.degree}</h3>
+                                        {edu.fieldOfStudy && <p className="text-md text-muted-foreground">{edu.fieldOfStudy}</p>}
+                                        <p className="text-md text-accent">{edu.institution}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                     {Array.isArray(watchedValues.projects) && watchedValues.projects.length > 0 && (
+                       <section id="projects">
+                          <h2 className="text-2xl font-bold font-headline text-center mb-6">Projects</h2>
+                          <div className="space-y-6">
+                            {watchedValues.projects.map((project, i) => project.title && (
+                               <div key={i} className="border rounded-lg p-4">
+                                   {project.imageUrl && <Image src={project.imageUrl} alt={project.title} width={400} height={250} className="rounded-md w-full object-cover aspect-video mb-2" />}
+                                   <h4 className="font-bold">{project.title}</h4>
+                                   <p className="text-sm text-muted-foreground">{project.description}</p>
+                                   {project.link && <a href={project.link} target="_blank" rel="noopener noreferrer" className="text-sm text-accent hover:underline mt-2 inline-block">View Project</a>}
+                               </div>
+                            ))}
+                          </div>
+                       </section>
+                    )}
+
+                    {Array.isArray(watchedValues.certifications) && watchedValues.certifications.length > 0 && (
+                        <section id="certifications">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Certifications</h2>
+                            <div className="grid grid-cols-1 gap-4">
+                                {watchedValues.certifications.map((cert, index) => cert.name && (
+                                    <Card key={index} className="p-4 flex items-start gap-3">
+                                        <div className="bg-primary/10 text-primary p-2 rounded-full mt-1"><Award className="h-5 w-5"/></div>
+                                        <div>
+                                            <h3 className="font-bold">{cert.name}</h3>
+                                            <p className="text-sm text-muted-foreground">{cert.issuingOrganization}</p>
+                                            {cert.issueDate && <p className="text-xs text-muted-foreground mt-1">Issued {cert.issueDate}</p>}
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                    
+                    {Array.isArray(watchedValues.courses) && watchedValues.courses.length > 0 && (
+                        <section id="courses">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Courses</h2>
+                            <div className="grid grid-cols-1 gap-4">
+                                {watchedValues.courses.map((course, index) => course.name && (
+                                    <Card key={index} className="p-4 flex items-start gap-3">
+                                        <div className="bg-primary/10 text-primary p-2 rounded-full mt-1"><BookOpen className="h-5 w-5"/></div>
+                                        <div>
+                                            <h3 className="font-bold">{course.name}</h3>
+                                            {course.platform && <p className="text-sm text-muted-foreground">{course.platform}</p>}
+                                            {course.completionDate && <p className="text-xs text-muted-foreground mt-1">Completed {course.completionDate}</p>}
+                                        </div>
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
+                    {Array.isArray(watchedValues.testimonials) && watchedValues.testimonials.length > 0 && (
+                        <section id="testimonials">
+                            <h2 className="text-2xl font-bold font-headline text-center mb-6">Testimonials</h2>
+                            <div className="grid grid-cols-1 gap-6">
+                                {watchedValues.testimonials.map((testimonial, index) => testimonial.feedback && (
+                                    <Card key={index} className="p-4">
+                                        <Quote className="h-6 w-6 text-primary mb-2" />
+                                        <p className="text-foreground/80 mb-2 italic text-sm">"{testimonial.feedback}"</p>
+                                        <p className="font-bold text-right text-sm">{testimonial.name}</p>
+                                        {testimonial.company && <p className="text-muted-foreground text-xs text-right">{testimonial.company}</p>}
+                                    </Card>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+                </main>
               </div>
             </div>
         </div>
