@@ -94,6 +94,23 @@ const portfolioSchema = z.object({
 
 type PortfolioFormValues = z.infer<typeof portfolioSchema>;
 
+const defaultFormValues: PortfolioFormValues = {
+    fullName: "",
+    title: "",
+    bio: "",
+    profilePictureUrl: "",
+    website: "",
+    skills: [],
+    projects: [],
+    workExperiences: [],
+    organizationExperiences: [],
+    educations: [],
+    certifications: [],
+    courses: [],
+    testimonials: [],
+    socialMedia: [],
+};
+
 export default function EditorPage() {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -105,22 +122,7 @@ export default function EditorPage() {
 
   const form = useForm<PortfolioFormValues>({
     resolver: zodResolver(portfolioSchema),
-    defaultValues: {
-      fullName: "",
-      title: "",
-      bio: "",
-      profilePictureUrl: "",
-      website: "",
-      skills: [],
-      projects: [],
-      workExperiences: [],
-      organizationExperiences: [],
-      educations: [],
-      certifications: [],
-      courses: [],
-      testimonials: [],
-      socialMedia: [],
-    },
+    defaultValues: defaultFormValues,
   });
 
   const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({ control: form.control, name: "projects" });
@@ -148,7 +150,10 @@ export default function EditorPage() {
         const portfolioDocRef = doc(db, "portfolios", user.uid);
         const docSnap = await getDoc(portfolioDocRef);
         if (docSnap.exists()) {
-          form.reset(docSnap.data() as PortfolioFormValues);
+          const fetchedData = docSnap.data();
+          // Merge fetched data with defaults to avoid undefined values
+          const mergedData = { ...defaultFormValues, ...fetchedData };
+          form.reset(mergedData as PortfolioFormValues);
         }
         setLoadingData(false);
       };
