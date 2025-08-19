@@ -66,7 +66,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
         <div className="bg-background min-h-screen">
             <div id="portfolio-content" className="container mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
                 <header className="flex flex-col sm:flex-row items-center gap-8 mb-12">
-                     <div className="relative">
+                     <div className="relative" data-aos="fade-down">
                         <Image
                             src={profilePictureUrl || "https://placehold.co/128x128.png"}
                             alt={fullName || 'Profile Picture'}
@@ -76,7 +76,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
                             data-ai-hint="profile person"
                          />
                      </div>
-                     <div className="text-center sm:text-left">
+                     <div className="text-center sm:text-left" data-aos="fade-up">
                         <h1 className="text-4xl font-bold font-headline">{fullName || "Your Name"}</h1>
                         <p className="text-xl text-muted-foreground mt-1">{title || "Your Title"}</p>
                         <p className="mt-4 max-w-prose text-foreground/80">{bio || "Your biography will be displayed here."}</p>
@@ -98,11 +98,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                 
                 <main className="space-y-16">
                     {skills.length > 0 && (
-                        <section id="skills">
+                        <section id="skills" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Skills</h2>
                             <div className="flex flex-wrap justify-center gap-3">
-                                {skills.map((skill: string) => (
-                                    <Badge key={skill} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20">
+                                {skills.map((skill: string, index: number) => (
+                                    <Badge key={skill} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20" data-aos="zoom-in" data-aos-delay={index * 50}>
                                         {skill}
                                     </Badge>
                                 ))}
@@ -111,11 +111,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                     )}
 
                     {workExperiences.length > 0 && (
-                        <section id="work-experience">
+                        <section id="work-experience" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Work Experience</h2>
                             <div className="relative border-l-2 border-primary/20 pl-8 space-y-10">
                                 {workExperiences.map((exp: any, index: number) => (
-                                    <div key={index} className="relative">
+                                    <div key={index} className="relative" data-aos="fade-left" data-aos-delay={index * 100}>
                                         <div className="absolute -left-[42px] top-1.5 h-4 w-4 rounded-full bg-primary" />
                                         <p className="text-sm text-muted-foreground"><Briefcase className="inline-block mr-2 h-4 w-4" />{exp.startDate} - {exp.endDate || 'Present'}</p>
                                         <h3 className="text-xl font-bold">{exp.role}</h3>
@@ -128,11 +128,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                     )}
 
                     {organizationExperiences.length > 0 && (
-                        <section id="organization-experience">
+                        <section id="organization-experience" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Organization Experience</h2>
                             <div className="relative border-l-2 border-primary/20 pl-8 space-y-10">
                                 {organizationExperiences.map((exp: any, index: number) => (
-                                    <div key={index} className="relative">
+                                    <div key={index} className="relative" data-aos="fade-left" data-aos-delay={index * 100}>
                                         <div className="absolute -left-[42px] top-1.5 h-4 w-4 rounded-full bg-primary" />
                                         <p className="text-sm text-muted-foreground"><Users className="inline-block mr-2 h-4 w-4" />{exp.startDate} - {exp.endDate || 'Present'}</p>
                                         <h3 className="text-xl font-bold">{exp.role}</h3>
@@ -145,11 +145,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                     )}
 
                     {educations.length > 0 && (
-                        <section id="education">
+                        <section id="education" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Education</h2>
                             <div className="relative border-l-2 border-primary/20 pl-8 space-y-10">
                                 {educations.map((edu: any, index: number) => (
-                                    <div key={index} className="relative">
+                                    <div key={index} className="relative" data-aos="fade-left" data-aos-delay={index * 100}>
                                         <div className="absolute -left-[42px] top-1.5 h-4 w-4 rounded-full bg-primary" />
                                         <p className="text-sm text-muted-foreground"><Calendar className="inline-block mr-2 h-4 w-4" />{edu.startDate} - {edu.endDate || 'Present'}</p>
                                         <h3 className="text-xl font-bold">{edu.degree}</h3>
@@ -162,11 +162,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                     )}
 
                     {certifications.length > 0 && (
-                        <section id="certifications">
+                        <section id="certifications" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Certifications</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {certifications.map((cert: any, index: number) => (
-                                    <Card key={index} className="p-6 flex items-start gap-4">
+                                    <Card key={index} className="p-6 flex items-start gap-4" data-aos="fade-up" data-aos-delay={index * 100}>
                                         <div className="bg-primary/10 text-primary p-3 rounded-full"><Award className="h-6 w-6"/></div>
                                         <div>
                                             <h3 className="font-bold text-lg">{cert.name}</h3>
@@ -181,11 +181,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                     )}
                     
                     {courses.length > 0 && (
-                        <section id="courses">
+                        <section id="courses" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Courses</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {courses.map((course: any, index: number) => (
-                                    <Card key={index} className="p-6 flex items-start gap-4">
+                                    <Card key={index} className="p-6 flex items-start gap-4" data-aos="fade-up" data-aos-delay={index * 100}>
                                         <div className="bg-primary/10 text-primary p-3 rounded-full"><BookOpen className="h-6 w-6"/></div>
                                         <div>
                                             <h3 className="font-bold text-lg">{course.name}</h3>
@@ -199,11 +199,11 @@ export default async function PortfolioPage({ params }: { params: { username: st
                     )}
 
                     {testimonials.length > 0 && (
-                        <section id="testimonials">
+                        <section id="testimonials" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Testimonials</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {testimonials.map((testimonial: any, index: number) => (
-                                    <Card key={index} className="p-6">
+                                    <Card key={index} className="p-6" data-aos="fade-up" data-aos-delay={index * 100}>
                                         <Quote className="h-8 w-8 text-primary mb-4" />
                                         <p className="text-foreground/80 mb-4 italic">"{testimonial.feedback}"</p>
                                         <p className="font-bold text-right">{testimonial.name}</p>
@@ -216,10 +216,10 @@ export default async function PortfolioPage({ params }: { params: { username: st
 
                     {projects.length > 0 && (
                         <section id="projects">
-                            <h2 className="text-3xl font-bold font-headline text-center mb-8">Projects</h2>
+                            <h2 className="text-3xl font-bold font-headline text-center mb-8" data-aos="fade-up">Projects</h2>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {projects.map((project: any, index: number) => (
-                                    <Card key={index} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
+                                    <Card key={index} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300" data-aos="fade-up" data-aos-delay={index * 100}>
                                         {project.imageUrl && (
                                             <Image 
                                                 src={project.imageUrl}
