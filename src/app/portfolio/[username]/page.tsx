@@ -52,7 +52,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
     }
 
     const { 
-        fullName, title, bio, profilePictureUrl, profilePictureShape, textAlign, theme, website,
+        fullName, title, bio, profilePictureUrl, profilePictureShape, profilePictureSize, textAlign, theme, website,
         skills = [], 
         projects = [],
         workExperiences = [],
@@ -68,24 +68,36 @@ export default async function PortfolioPage({ params }: { params: { username: st
         <div className={cn("bg-background min-h-screen", theme)}>
             <AOSInitializer />
             <div id="portfolio-content" className="container mx-auto max-w-4xl p-4 sm:p-8 md:p-12 bg-background text-foreground">
-                <header className={cn("flex flex-col items-center gap-8 mb-12", {
-                    'sm:flex-row sm:text-left': textAlign === 'text-left',
-                    'sm:flex-col sm:text-center': textAlign === 'text-center' || textAlign === 'text-right',
+                <header className={cn("flex items-center gap-8 mb-12", {
+                    'flex-col': profilePictureSize === 'large',
+                    'flex-row': profilePictureSize !== 'large',
+                    'text-left': textAlign === 'text-left',
+                    'text-center': textAlign === 'text-center',
+                    'text-right': textAlign === 'text-right',
+                    'items-center': textAlign === 'text-center'
                 })}>
-                     <div className="relative" data-aos="fade-down">
+                     <div className="relative flex-shrink-0" data-aos="fade-down">
                         <Image
-                            src={profilePictureUrl || "https://placehold.co/128x128.png"}
+                            src={profilePictureUrl || "https://placehold.co/160x160.png"}
                             alt={fullName || 'Profile Picture'}
-                            width={128}
-                            height={128}
-                            className={cn("object-cover border-4 border-card shadow-md w-32 h-32", profilePictureShape || 'rounded-full')}
+                            width={160}
+                            height={160}
+                            className={cn(
+                                "object-cover border-4 border-card shadow-md transition-transform duration-300 ease-in-out hover:scale-110",
+                                profilePictureShape || 'rounded-full',
+                                {
+                                    'w-24 h-24': profilePictureSize === 'small',
+                                    'w-32 h-32': profilePictureSize === 'medium',
+                                    'w-40 h-40': profilePictureSize === 'large',
+                                }
+                            )}
                             data-ai-hint="profile person"
                          />
                      </div>
                      <div className={cn(textAlign, "w-full")} data-aos="fade-up">
                         <h1 className="text-4xl font-bold font-headline">{fullName || "Your Name"}</h1>
                         <p className="text-xl text-muted-foreground mt-1">{title || "Your Title"}</p>
-                        <p className="mt-4 max-w-prose text-foreground/80 mx-auto sm:mx-0">{bio || "Your biography will be displayed here."}</p>
+                        <p className="mt-4 max-w-prose text-foreground/80">{bio || "Your biography will be displayed here."}</p>
                         <div className={cn("flex items-center gap-4 mt-4", {
                             'justify-start': textAlign === 'text-left',
                             'justify-center': textAlign === 'text-center',

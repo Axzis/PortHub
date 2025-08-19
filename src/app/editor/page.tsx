@@ -89,6 +89,7 @@ const portfolioSchema = z.object({
   bio: z.string().min(1, "Bio is required").max(300, "Bio cannot exceed 300 characters"),
   profilePictureUrl: z.string().url().optional().or(z.literal("")),
   profilePictureShape: z.enum(['rounded-full', 'rounded-lg', 'rounded-none']).default('rounded-full'),
+  profilePictureSize: z.enum(['small', 'medium', 'large']).default('medium'),
   textAlign: z.enum(['text-left', 'text-center', 'text-right']).default('text-left'),
   theme: z.string().default('default'),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
@@ -111,6 +112,7 @@ const defaultFormValues: PortfolioFormValues = {
     bio: "",
     profilePictureUrl: "",
     profilePictureShape: 'rounded-full',
+    profilePictureSize: 'medium',
     textAlign: 'text-left',
     theme: 'default',
     website: "",
@@ -336,6 +338,43 @@ export default function EditorPage() {
                                         </FormItem>
                                         </RadioGroup>
                                     </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                         />
+                         <FormField
+                            control={form.control}
+                            name="profilePictureSize"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Profile Picture Size & Layout</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+                                        >
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="small" id="size-small" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="size-small" className="font-normal">Small</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="medium" id="size-medium" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="size-medium" className="font-normal">Medium</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="large" id="size-large" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="size-large" className="font-normal">Large</FormLabel>
+                                        </FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormDescription>Large size places the image above the text. Small/Medium places it inline.</FormDescription>
                                     <FormMessage />
                                 </FormItem>
                             )}
@@ -653,21 +692,45 @@ export default function EditorPage() {
             <div className="sticky top-8">
               <h2 className="font-headline text-2xl font-bold mb-4">Live Preview</h2>
               <div className="border rounded-lg aspect-[9/16] overflow-y-auto p-4 bg-background text-foreground">
-                  <header className={cn("flex flex-col items-center gap-8 mb-12", {
-                      'sm:flex-row sm:text-left': watchedValues.textAlign === 'text-left',
-                      'sm:flex-col sm:text-center': watchedValues.textAlign === 'text-center' || watchedValues.textAlign === 'text-right',
+                  <header className={cn("flex items-center gap-8 mb-12", {
+                      'flex-col': watchedValues.profilePictureSize === 'large',
+                      'flex-row': watchedValues.profilePictureSize !== 'large',
+                      'text-left': watchedValues.textAlign === 'text-left',
+                      'text-center': watchedValues.textAlign === 'text-center',
+                      'text-right': watchedValues.textAlign === 'text-right',
+                      'items-center': watchedValues.textAlign === 'text-center'
                   })}>
-                     <div className="relative">
+                     <div className="relative flex-shrink-0">
                         {watchedValues.profilePictureUrl ? 
-                            <Image src={watchedValues.profilePictureUrl} alt="profile" width={128} height={128} className={cn("mx-auto object-cover w-32 h-32 border-4 border-card shadow-md", watchedValues.profilePictureShape)} /> 
+                            <Image 
+                                src={watchedValues.profilePictureUrl} 
+                                alt="profile" 
+                                width={128} 
+                                height={128} 
+                                className={cn("object-cover border-4 border-card shadow-md", 
+                                    watchedValues.profilePictureShape,
+                                    {
+                                        'w-24 h-24': watchedValues.profilePictureSize === 'small',
+                                        'w-32 h-32': watchedValues.profilePictureSize === 'medium',
+                                        'w-40 h-40': watchedValues.profilePictureSize === 'large',
+                                    }
+                                )} 
+                            /> 
                             : 
-                            <div className={cn("w-32 h-32 bg-muted mx-auto border-4 border-card shadow-md", watchedValues.profilePictureShape)}/>
+                            <div className={cn("bg-muted border-4 border-card shadow-md", 
+                                watchedValues.profilePictureShape,
+                                {
+                                    'w-24 h-24': watchedValues.profilePictureSize === 'small',
+                                    'w-32 h-32': watchedValues.profilePictureSize === 'medium',
+                                    'w-40 h-40': watchedValues.profilePictureSize === 'large',
+                                }
+                            )}/>
                         }
                      </div>
                      <div className={cn(watchedValues.textAlign, 'w-full')}>
                         <h1 className="text-4xl font-bold font-headline">{watchedValues.fullName || "Your Name"}</h1>
                         <p className="text-xl text-muted-foreground mt-1">{watchedValues.title || "Your Title"}</p>
-                        <p className="mt-4 max-w-prose text-foreground/80 mx-auto sm:mx-0">{watchedValues.bio || "Your bio will appear here."}</p>
+                        <p className="mt-4 max-w-prose text-foreground/80">{watchedValues.bio || "Your bio will appear here."}</p>
                          <div className={cn("flex items-center gap-4 mt-4", {
                             'justify-start': watchedValues.textAlign === 'text-left',
                             'justify-center': watchedValues.textAlign === 'text-center',

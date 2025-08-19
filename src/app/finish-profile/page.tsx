@@ -98,6 +98,7 @@ function FinishProfileForm() {
             bio: "A short bio about yourself.",
             profilePictureUrl: user?.photoURL || "",
             profilePictureShape: 'rounded-full',
+            profilePictureSize: 'medium',
             textAlign: 'text-left',
             website: "",
             skills: [{name: "React"}, {name: "Next.js"}, {name: "Firebase"}],
