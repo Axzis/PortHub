@@ -1,10 +1,11 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { useForm } from "react-hook-form";
+import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/contexts/auth-context";
@@ -38,12 +39,11 @@ const portfolioSchema = z.object({
 type PortfolioFormValues = z.infer<typeof portfolioSchema>;
 
 export default function EditorPage() {
-  const { user, userData, loading: authLoading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [loadingData, setLoadingData] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState('content'); // content, projects
 
   const form = useForm<PortfolioFormValues>({
     resolver: zodResolver(portfolioSchema),
@@ -55,6 +55,11 @@ export default function EditorPage() {
       skills: [],
       projects: [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "projects",
   });
 
   const { watch } = form;
@@ -80,7 +85,7 @@ export default function EditorPage() {
     }
   }, [user, authLoading, router, form]);
 
-  const handleImageUpload = async (file: File, fieldName: string, projectIndex?: number) => {
+  const handleImageUpload = async (file: File, fieldName: 'profilePictureUrl' | `projects.${number}.imageUrl`) => {
     if (!user) return;
     const toastId = toast({ title: "Uploading image...", description: "Please wait." }).id;
     
@@ -89,11 +94,7 @@ export default function EditorPage() {
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
 
-      if (fieldName === 'profilePictureUrl') {
-        form.setValue('profilePictureUrl', downloadURL);
-      } else if (fieldName === 'projectImageUrl' && projectIndex !== undefined) {
-        form.setValue(`projects.${projectIndex}.imageUrl`, downloadURL);
-      }
+      form.setValue(fieldName, downloadURL);
       
       toast.update(toastId, { title: "Success!", description: "Image uploaded." });
     } catch (error) {
@@ -154,7 +155,7 @@ export default function EditorPage() {
                                 <FormItem>
                                 <FormLabel>Profile Picture</FormLabel>
                                 <div className="flex items-center gap-4">
-                                {field.value && <Image src={field.value} alt="Profile preview" width={64} height={64} className="rounded-full" />}
+                                {field.value && <Image src={field.value} alt="Profile preview" width={64} height={64} className="rounded-full object-cover" />}
                                 <FormControl>
                                     <Input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleImageUpload(e.target.files[0], 'profilePictureUrl')} className="hidden" id="profile-pic-upload"/>
                                 </FormControl>
@@ -191,7 +192,7 @@ export default function EditorPage() {
                                     <Input 
                                         placeholder="JavaScript, Python, Figma" 
                                         value={field.value.join(', ')} 
-                                        onChange={(e) => field.onChange(e.target.value.split(',').map(skill => skill.trim()))}
+                                        onChange={(e) => field.onChange(e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill))}
                                     />
                                  </FormControl>
                                  <FormMessage />
@@ -205,27 +206,45 @@ export default function EditorPage() {
                         <CardTitle>Projects</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {form.getValues('projects').map((_, index) => (
-                            <div key={index} className="space-y-4 p-4 border rounded-md relative">
-                                <h3 className="font-semibold">Project {index+1}</h3>
-                                <Button type="button" variant="destructive" size="icon" className="absolute top-2 right-2 h-6 w-6" onClick={() => form.setValue('projects', form.getValues('projects').filter((_, i) => i !== index))}>
-                                    <Trash2 className="h-4 w-4"/>
-                                </Button>
+                        {fields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="font-semibold">Project {index+1}</h3>
+                                    <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => remove(index)}>
+                                        <Trash2 className="h-4 w-4"/>
+                                        <span className="sr-only">Remove Project</span>
+                                    </Button>
+                                </div>
                                 <FormField control={form.control} name={`projects.${index}.title`} render={({field}) => (
                                     <FormItem><FormLabel>Project Title</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                                  <FormField control={form.control} name={`projects.${index}.description`} render={({field}) => (
                                     <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
-                                <FormField control={form.control} name={`projects.${index}.imageUrl`} render={({field}) => (
-                                    <FormItem><FormLabel>Image URL</FormLabel><FormControl><Input placeholder="https://..." {...field} /></FormControl><FormMessage /></FormItem>
+                                <FormField control={form.control} name={`projects.${index}.imageUrl`} render={({ field: imageField }) => (
+                                    <FormItem>
+                                    <FormLabel>Project Image</FormLabel>
+                                    <div className="flex items-center gap-4">
+                                        {imageField.value && <Image src={imageField.value} alt={`Project ${index + 1} preview`} width={80} height={45} className="rounded-md object-cover" />}
+                                        <FormControl>
+                                            <Input type="file" accept="image/*" onChange={e => e.target.files?.[0] && handleImageUpload(e.target.files[0], `projects.${index}.imageUrl`)} className="hidden" id={`project-pic-upload-${index}`}/>
+                                        </FormControl>
+                                        <Button asChild variant="outline">
+                                            <label htmlFor={`project-pic-upload-${index}`} className="cursor-pointer">
+                                                <UploadCloud className="mr-2 h-4 w-4"/> Upload
+                                            </label>
+                                        </Button>
+                                    </div>
+                                    <Input {...imageField} placeholder="Or paste an image URL" className="mt-2" />
+                                    <FormMessage />
+                                    </FormItem>
                                 )}/>
                                 <FormField control={form.control} name={`projects.${index}.link`} render={({field}) => (
                                     <FormItem><FormLabel>Project Link</FormLabel><FormControl><Input placeholder="https://github.com/..." {...field} /></FormControl><FormMessage /></FormItem>
                                 )}/>
                             </div>
                         ))}
-                         <Button type="button" variant="outline" onClick={() => form.setValue('projects', [...form.getValues('projects'), {title: '', description: '', imageUrl: '', link: ''}])}>
+                         <Button type="button" variant="outline" onClick={() => append({title: '', description: '', imageUrl: '', link: ''})}>
                            <PlusCircle className="mr-2 h-4 w-4"/> Add Project
                         </Button>
                     </CardContent>
@@ -250,7 +269,7 @@ export default function EditorPage() {
                   <div>
                     <h3 className="text-lg font-bold font-headline mb-4 text-center">Skills</h3>
                     <div className="flex flex-wrap gap-2 justify-center">
-                        {watchedValues.skills?.map((skill, i) => skill && <span key={i} className="bg-primary/10 text-primary-foreground-subtle border border-primary/20 px-3 py-1 rounded-full text-sm">{skill}</span>)}
+                        {watchedValues.skills?.map((skill, i) => skill && <span key={i} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm">{skill}</span>)}
                     </div>
                   </div>
                    <hr className="my-6" />
@@ -273,4 +292,3 @@ export default function EditorPage() {
     </div>
   );
 }
-

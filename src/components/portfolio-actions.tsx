@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -8,6 +9,11 @@ import { useToast } from '@/hooks/use-toast';
 export function PortfolioActions() {
     const [isDownloading, setIsDownloading] = useState(false);
     const { toast } = useToast();
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
 
     const handleDownloadPdf = async () => {
         setIsDownloading(true);
@@ -19,13 +25,14 @@ export function PortfolioActions() {
             const element = document.getElementById('portfolio-content');
             if (!element) {
                 toast({ variant: 'destructive', title: 'Error', description: 'Could not find portfolio content.' });
+                setIsDownloading(false);
                 return;
             }
 
             const canvas = await html2canvas(element, {
                  scale: 2, 
                  useCORS: true,
-                 backgroundColor: window.getComputedStyle(document.body).backgroundColor === 'rgb(240, 242, 245)' ? '#F0F2F5' : '#1A1A1A'
+                 backgroundColor: window.getComputedStyle(document.body).backgroundColor,
             });
             const imgData = canvas.toDataURL('image/png');
             
@@ -45,9 +52,13 @@ export function PortfolioActions() {
             setIsDownloading(false);
         }
     };
+    
+    if (!isClient) {
+        return null;
+    }
 
     return (
-        <div className="fixed bottom-8 right-8">
+        <div className="fixed bottom-8 right-8 z-50">
             <Button onClick={handleDownloadPdf} disabled={isDownloading} size="lg" className="rounded-full shadow-lg">
                 {isDownloading ? (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

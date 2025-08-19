@@ -1,3 +1,4 @@
+
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 import { notFound } from 'next/navigation';
@@ -65,7 +66,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
                         <h2 className="text-3xl font-bold font-headline text-center mb-8">Skills</h2>
                         <div className="flex flex-wrap justify-center gap-3">
                             {skills.map((skill: string) => (
-                                <Badge key={skill} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent-foreground-emphasis hover:bg-accent/20 border border-accent/20">
+                                <Badge key={skill} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20">
                                     {skill}
                                 </Badge>
                             ))}
