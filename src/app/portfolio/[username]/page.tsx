@@ -78,17 +78,17 @@ export default async function PortfolioPage({ params }: { params: { username: st
                 })}>
                      <div className="relative flex-shrink-0" data-aos="fade-down">
                         <Image
-                            src={profilePictureUrl || "https://placehold.co/160x160.png"}
+                            src={profilePictureUrl || "https://placehold.co/224x224.png"}
                             alt={fullName || 'Profile Picture'}
-                            width={160}
-                            height={160}
+                            width={256}
+                            height={256}
                             className={cn(
                                 "object-cover border-4 border-card shadow-md transition-transform duration-300 ease-in-out hover:scale-110",
                                 profilePictureShape || 'rounded-full',
                                 {
-                                    'w-24 h-24': profilePictureSize === 'small',
-                                    'w-32 h-32': profilePictureSize === 'medium',
-                                    'w-40 h-40': profilePictureSize === 'large',
+                                    'w-28 h-28': profilePictureSize === 'small', // 112px
+                                    'w-40 h-40': profilePictureSize === 'medium', // 160px
+                                    'w-56 h-56': profilePictureSize === 'large', // 224px
                                 }
                             )}
                             data-ai-hint="profile person"

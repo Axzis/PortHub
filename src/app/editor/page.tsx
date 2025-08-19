@@ -705,14 +705,14 @@ export default function EditorPage() {
                             <Image 
                                 src={watchedValues.profilePictureUrl} 
                                 alt="profile" 
-                                width={128} 
-                                height={128} 
+                                width={256} 
+                                height={256} 
                                 className={cn("object-cover border-4 border-card shadow-md", 
                                     watchedValues.profilePictureShape,
                                     {
-                                        'w-24 h-24': watchedValues.profilePictureSize === 'small',
-                                        'w-32 h-32': watchedValues.profilePictureSize === 'medium',
-                                        'w-40 h-40': watchedValues.profilePictureSize === 'large',
+                                        'w-28 h-28': watchedValues.profilePictureSize === 'small',
+                                        'w-40 h-40': watchedValues.profilePictureSize === 'medium',
+                                        'w-56 h-56': watchedValues.profilePictureSize === 'large',
                                     }
                                 )} 
                             /> 
@@ -720,9 +720,9 @@ export default function EditorPage() {
                             <div className={cn("bg-muted border-4 border-card shadow-md", 
                                 watchedValues.profilePictureShape,
                                 {
-                                    'w-24 h-24': watchedValues.profilePictureSize === 'small',
-                                    'w-32 h-32': watchedValues.profilePictureSize === 'medium',
-                                    'w-40 h-40': watchedValues.profilePictureSize === 'large',
+                                    'w-28 h-28': watchedValues.profilePictureSize === 'small',
+                                    'w-40 h-40': watchedValues.profilePictureSize === 'medium',
+                                    'w-56 h-56': watchedValues.profilePictureSize === 'large',
                                 }
                             )}/>
                         }
