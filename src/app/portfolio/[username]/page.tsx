@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Globe, Linkedin, Github, Twitter, Quote, Calendar, Building, GraduationCap, Award, BookOpen, Briefcase, Users, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { PortfolioActions } from '@/components/portfolio-actions';
 import { AOSInitializer } from '@/components/AOSInitializer';
+import { cn } from '@/lib/utils';
 
 async function getPortfolioData(username: string) {
     const q = query(collection(db, "users"), where("username", "==", username.toLowerCase()));
@@ -51,7 +52,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
     }
 
     const { 
-        fullName, title, bio, profilePictureUrl, website,
+        fullName, title, bio, profilePictureUrl, profilePictureShape, theme, website,
         skills = [], 
         projects = [],
         workExperiences = [],
@@ -64,9 +65,9 @@ export default async function PortfolioPage({ params }: { params: { username: st
     } = portfolioData;
 
     return (
-        <div className="bg-background min-h-screen">
+        <div className={cn("bg-background min-h-screen", theme)}>
             <AOSInitializer />
-            <div id="portfolio-content" className="container mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
+            <div id="portfolio-content" className="container mx-auto max-w-4xl p-4 sm:p-8 md:p-12 bg-background text-foreground">
                 <header className="flex flex-col sm:flex-row items-center gap-8 mb-12">
                      <div className="relative" data-aos="fade-down">
                         <Image
@@ -74,7 +75,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
                             alt={fullName || 'Profile Picture'}
                             width={128}
                             height={128}
-                            className="rounded-full object-cover border-4 border-card shadow-md"
+                            className={cn("object-cover border-4 border-card shadow-md w-32 h-32", profilePictureShape || 'rounded-full')}
                             data-ai-hint="profile person"
                          />
                      </div>
@@ -104,7 +105,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Skills</h2>
                             <div className="flex flex-wrap justify-center gap-3">
                                 {skills.map((skill: any, index: number) => (
-                                    <Badge key={index} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20" data-aos="zoom-in" data-aos-delay={index * 50}>
+                                    <Badge key={index} variant="secondary" className="text-base px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20" data-aos="zoom-in" data-aos-delay={index * 50}>
                                         {skill.name}
                                     </Badge>
                                 ))}

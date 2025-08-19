@@ -16,8 +16,11 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle, Square, Circle, RoundedSquare } from "lucide-react";
 import Image from "next/image";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const skillSchema = z.object({
   name: z.string().min(1, "Skill name is required"),
@@ -84,6 +87,8 @@ const portfolioSchema = z.object({
   title: z.string().min(1, "Title is required"),
   bio: z.string().min(1, "Bio is required").max(300, "Bio cannot exceed 300 characters"),
   profilePictureUrl: z.string().url().optional().or(z.literal("")),
+  profilePictureShape: z.enum(['rounded-full', 'rounded-lg', 'rounded-none']).default('rounded-full'),
+  theme: z.string().default('default'),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   skills: z.array(skillSchema),
   projects: z.array(projectSchema),
@@ -103,6 +108,8 @@ const defaultFormValues: PortfolioFormValues = {
     title: "",
     bio: "",
     profilePictureUrl: "",
+    profilePictureShape: 'rounded-full',
+    theme: 'default',
     website: "",
     skills: [],
     projects: [],
@@ -156,10 +163,6 @@ export default function EditorPage() {
         const docSnap = await getDoc(portfolioDocRef);
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
-          // Fallback for old skills string[] format
-          if (fetchedData.skills && fetchedData.skills.every((s: any) => typeof s === 'string')) {
-              fetchedData.skills = fetchedData.skills.map((s: string) => ({ name: s }));
-          }
           const mergedData = { ...defaultFormValues, ...fetchedData };
           form.reset(mergedData as PortfolioFormValues);
         }
@@ -280,6 +283,72 @@ export default function EditorPage() {
                          <FormField control={form.control} name="website" render={({ field }) => (
                             <FormItem><FormLabel>Website</FormLabel><FormControl><Input placeholder="https://your-website.com" {...field} /></FormControl><FormMessage /></FormItem>
                          )}/>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader><CardTitle>Appearance</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                         <FormField
+                            control={form.control}
+                            name="profilePictureShape"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Profile Picture Shape</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+                                        >
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="rounded-full" id="shape-circle" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="shape-circle" className="font-normal flex items-center gap-2"><Circle className="w-4 h-4" /> Circle</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="rounded-lg" id="shape-rounded" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="shape-rounded" className="font-normal flex items-center gap-2"><RoundedSquare className="w-4 h-4" /> Rounded</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="rounded-none" id="shape-square" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="shape-square" className="font-normal flex items-center gap-2"><Square className="w-4 h-4" /> Square</FormLabel>
+                                        </FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                         />
+                         <FormField
+                            control={form.control}
+                            name="theme"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Portfolio Theme</FormLabel>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select a theme" />
+                                    </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="default">Default</SelectItem>
+                                        <SelectItem value="minimalist">Minimalist</SelectItem>
+                                        <SelectItem value="modern-dark">Modern Dark</SelectItem>
+                                        <SelectItem value="forest">Forest</SelectItem>
+                                        <SelectItem value="ocean">Ocean</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </CardContent>
                 </Card>
 
@@ -529,12 +598,16 @@ export default function EditorPage() {
         </div>
 
         {/* Preview Side */}
-        <div className="bg-background text-foreground p-4 sm:p-6 md:p-8 h-full overflow-y-auto hidden md:block">
+        <div className={cn("bg-background text-foreground p-4 sm:p-6 md:p-8 h-full overflow-y-auto hidden md:block", watchedValues.theme)}>
             <div className="sticky top-8">
               <h2 className="font-headline text-2xl font-bold mb-4">Live Preview</h2>
-              <div className="border rounded-lg aspect-[9/16] overflow-y-auto p-4">
+              <div className="border rounded-lg aspect-[9/16] overflow-y-auto p-4 bg-background text-foreground">
                   <div className="text-center space-y-4">
-                    {watchedValues.profilePictureUrl ? <Image src={watchedValues.profilePictureUrl} alt="profile" width={128} height={128} className="rounded-full mx-auto" /> : <div className="w-32 h-32 rounded-full bg-muted mx-auto"/>}
+                    {watchedValues.profilePictureUrl ? 
+                        <Image src={watchedValues.profilePictureUrl} alt="profile" width={128} height={128} className={cn("mx-auto object-cover w-32 h-32", watchedValues.profilePictureShape)} /> 
+                        : 
+                        <div className={cn("w-32 h-32 bg-muted mx-auto", watchedValues.profilePictureShape)}/>
+                    }
                     <h2 className="text-2xl font-bold font-headline">{watchedValues.fullName || "Your Name"}</h2>
                     <p className="text-muted-foreground">{watchedValues.title || "Your Title"}</p>
                     <p className="text-sm max-w-prose mx-auto">{watchedValues.bio || "Your bio will appear here."}</p>
