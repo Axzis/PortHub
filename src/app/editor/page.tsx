@@ -16,7 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle, Square, Circle, RoundedSquare } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle, Square, Circle, AppWindow } from "lucide-react";
 import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -311,7 +311,7 @@ export default function EditorPage() {
                                             <FormControl>
                                                 <RadioGroupItem value="rounded-lg" id="shape-rounded" />
                                             </FormControl>
-                                            <FormLabel htmlFor="shape-rounded" className="font-normal flex items-center gap-2"><RoundedSquare className="w-4 h-4" /> Rounded</FormLabel>
+                                            <FormLabel htmlFor="shape-rounded" className="font-normal flex items-center gap-2"><AppWindow className="w-4 h-4" /> Rounded</FormLabel>
                                         </FormItem>
                                         <FormItem className="flex items-center space-x-2 space-y-0">
                                             <FormControl>
@@ -639,3 +639,5 @@ export default function EditorPage() {
     </div>
   );
 }
+
+    
