@@ -312,19 +312,27 @@ export default function EditorPage() {
                 <Card>
                     <CardHeader><CardTitle>Skills</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField control={form.control} name="skills" render={({ field }) => (
+                        <FormField
+                          control={form.control}
+                          name="skills"
+                          render={({ field }) => (
                             <FormItem>
-                                 <FormLabel>Enter your skills separated by commas</FormLabel>
-                                 <FormControl>
-                                    <Input 
-                                        placeholder="JavaScript, Python, Figma" 
-                                        value={Array.isArray(field.value) ? field.value.join(', ') : ''} 
-                                        onChange={(e) => field.onChange(e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill))}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
+                              <FormLabel>Skills</FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  placeholder="Enter one skill per line"
+                                  value={Array.isArray(field.value) ? field.value.join('\n') : ''}
+                                  onChange={(e) => field.onChange(e.target.value.split('\n').filter(skill => skill.trim() !== ''))}
+                                  rows={5}
+                                />
+                              </FormControl>
+                              <FormDescription>
+                                Enter each skill on a new line.
+                              </FormDescription>
+                              <FormMessage />
                             </FormItem>
-                        )}/>
+                          )}
+                        />
                     </CardContent>
                 </Card>
 
