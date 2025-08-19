@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition, useEffect } from "react";
@@ -131,6 +132,9 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const handleGoogleSignIn = async () => {
     setGooglePending(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+        client_id: '553955372034-trj15c1tir12pet69ci95r9okv2ke5vn.apps.googleusercontent.com'
+    });
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
