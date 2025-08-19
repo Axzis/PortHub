@@ -3,6 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/auth-context';
 import { Header } from '@/components/header';
+import { AOSInitializer } from '@/components/AOSInitializer';
 
 export const metadata: Metadata = {
   title: 'PortfolioHub',
@@ -25,6 +26,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-body antialiased">
+        <AOSInitializer />
         <AuthProvider>
           <div className="flex min-h-screen flex-col">
             <Header />
