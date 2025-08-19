@@ -120,10 +120,11 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
           router.push("/dashboard");
         }
       } catch (error: any) {
+        console.error("Authentication Error Details:", error);
         toast({
           variant: "destructive",
           title: "Authentication Error",
-          description: error.message,
+          description: error.message || "An unknown error occurred.",
         });
       }
     });
