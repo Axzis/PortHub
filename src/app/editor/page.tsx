@@ -433,6 +433,16 @@ export default function EditorPage() {
                                         <SelectItem value="modern-dark">Modern Dark</SelectItem>
                                         <SelectItem value="forest">Forest</SelectItem>
                                         <SelectItem value="ocean">Ocean</SelectItem>
+                                        <SelectItem value="sunset">Sunset</SelectItem>
+                                        <SelectItem value="twilight">Twilight</SelectItem>
+                                        <SelectItem value="vintage">Vintage</SelectItem>
+                                        <SelectItem value="cyberpunk">Cyberpunk</SelectItem>
+                                        <SelectItem value="peach">Peach</SelectItem>
+                                        <SelectItem value="lavender">Lavender</SelectItem>
+                                        <SelectItem value="coral">Coral</SelectItem>
+                                        <SelectItem value="emerald">Emerald</SelectItem>
+                                        <SelectItem value="ruby">Ruby</SelectItem>
+                                        <SelectItem value="solarized-dark">Solarized Dark</SelectItem>
                                     </SelectContent>
                                 </Select>
                                 <FormMessage />
