@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useTransition, useEffect, Suspense } from "react";
@@ -92,13 +93,21 @@ function FinishProfileForm() {
           uid: uid,
         });
         await setDoc(doc(db, "portfolios", uid), {
-          fullName: "Your Name",
-          title: "Your Title",
-          bio: "A short bio about yourself.",
-          profilePictureUrl: user?.photoURL || "",
-          skills: ["React", "Next.js", "Firebase"],
-          projects: [],
-          theme: 'default',
+            fullName: "Your Name",
+            title: "Your Title",
+            bio: "A short bio about yourself.",
+            profilePictureUrl: user?.photoURL || "",
+            website: "",
+            skills: ["React", "Next.js", "Firebase"],
+            projects: [],
+            workExperiences: [],
+            organizationExperiences: [],
+            educations: [],
+            certifications: [],
+            courses: [],
+            testimonials: [],
+            socialMedia: [],
+            theme: 'default',
         });
 
         toast({ title: "Profile complete!", description: "Welcome to PortfolioHub." });
@@ -161,3 +170,5 @@ export default function FinishProfilePage() {
         </Suspense>
     )
 }
+
+    

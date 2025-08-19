@@ -17,7 +17,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, PlusCircle, Trash2, UploadCloud } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 
 const projectSchema = z.object({
@@ -27,13 +27,70 @@ const projectSchema = z.object({
   link: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
+const workExperienceSchema = z.object({
+    company: z.string().min(1, "Company name is required"),
+    role: z.string().min(1, "Role is required"),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().optional(),
+    description: z.string().optional(),
+});
+
+const organizationExperienceSchema = z.object({
+    organization: z.string().min(1, "Organization name is required"),
+    role: z.string().min(1, "Role is required"),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().optional(),
+    description: z.string().optional(),
+});
+
+const educationSchema = z.object({
+    institution: z.string().min(1, "Institution is required"),
+    degree: z.string().min(1, "Degree is required"),
+    fieldOfStudy: z.string().optional(),
+    startDate: z.string().min(1, "Start date is required"),
+    endDate: z.string().optional(),
+});
+
+const certificationSchema = z.object({
+    name: z.string().min(1, "Certification name is required"),
+    issuingOrganization: z.string().min(1, "Organization is required"),
+    issueDate: z.string().optional(),
+    credentialId: z.string().optional(),
+});
+
+const courseSchema = z.object({
+    name: z.string().min(1, "Course name is required"),
+    platform: z.string().optional(),
+    completionDate: z.string().optional(),
+});
+
+const testimonialSchema = z.object({
+    name: z.string().min(1, "Name is required"),
+    feedback: z.string().min(1, "Feedback is required"),
+    company: z.string().optional(),
+});
+
+const socialMediaSchema = z.object({
+    platform: z.enum(["linkedin", "github", "twitter"]),
+    url: z.string().url("Must be a valid URL"),
+});
+
+
 const portfolioSchema = z.object({
   fullName: z.string().min(1, "Full name is required"),
   title: z.string().min(1, "Title is required"),
   bio: z.string().min(1, "Bio is required").max(300, "Bio cannot exceed 300 characters"),
   profilePictureUrl: z.string().url().optional().or(z.literal("")),
+  website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   skills: z.array(z.string().min(1)).min(1, "At least one skill is required"),
   projects: z.array(projectSchema),
+  workExperiences: z.array(workExperienceSchema),
+  organizationExperiences: z.array(organizationExperienceSchema),
+  educations: z.array(educationSchema),
+  certifications: z.array(certificationSchema),
+  courses: z.array(courseSchema),
+  testimonials: z.array(testimonialSchema),
+  socialMedia: z.array(socialMediaSchema),
 });
 
 type PortfolioFormValues = z.infer<typeof portfolioSchema>;
@@ -52,15 +109,28 @@ export default function EditorPage() {
       title: "",
       bio: "",
       profilePictureUrl: "",
+      website: "",
       skills: [],
       projects: [],
+      workExperiences: [],
+      organizationExperiences: [],
+      educations: [],
+      certifications: [],
+      courses: [],
+      testimonials: [],
+      socialMedia: [],
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "projects",
-  });
+  const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({ control: form.control, name: "projects" });
+  const { fields: workFields, append: appendWork, remove: removeWork } = useFieldArray({ control: form.control, name: "workExperiences" });
+  const { fields: orgFields, append: appendOrg, remove: removeOrg } = useFieldArray({ control: form.control, name: "organizationExperiences" });
+  const { fields: eduFields, append: appendEdu, remove: removeEdu } = useFieldArray({ control: form.control, name: "educations" });
+  const { fields: certFields, append: appendCert, remove: removeCert } = useFieldArray({ control: form.control, name: "certifications" });
+  const { fields: courseFields, append: appendCourse, remove: removeCourse } = useFieldArray({ control: form.control, name: "courses" });
+  const { fields: testimonialFields, append: appendTestimonial, remove: removeTestimonial } = useFieldArray({ control: form.control, name: "testimonials" });
+  const { fields: socialFields, append: appendSocial, remove: removeSocial } = useFieldArray({ control: form.control, name: "socialMedia" });
+
 
   const { watch } = form;
   const watchedValues = watch();
@@ -85,7 +155,7 @@ export default function EditorPage() {
     }
   }, [user, authLoading, router, form]);
 
-  const handleImageUpload = async (file: File, fieldName: 'profilePictureUrl' | `projects.${number}.imageUrl`) => {
+  const handleImageUpload = async (file: File, fieldName: any) => {
     if (!user) return;
     const toastId = toast({ title: "Uploading image...", description: "Please wait." }).id;
     
@@ -179,6 +249,40 @@ export default function EditorPage() {
                          <FormField control={form.control} name="bio" render={({ field }) => (
                             <FormItem><FormLabel>Biography</FormLabel><FormControl><Textarea placeholder="Tell your story..." {...field} /></FormControl><FormDescription>Max 300 characters.</FormDescription><FormMessage /></FormItem>
                          )}/>
+                         <FormField control={form.control} name="website" render={({ field }) => (
+                            <FormItem><FormLabel>Website</FormLabel><FormControl><Input placeholder="https://your-website.com" {...field} /></FormControl><FormMessage /></FormItem>
+                         )}/>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader><CardTitle>Social Media</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {socialFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <div className="flex justify-between items-center">
+                                    <h3 className="font-semibold text-capitalize">{item.platform || `Link ${index+1}`}</h3>
+                                    <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => removeSocial(index)}>
+                                        <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Social Media</span>
+                                    </Button>
+                                </div>
+                                <FormField control={form.control} name={`socialMedia.${index}.platform`} render={({field}) => (
+                                    <FormItem><FormLabel>Platform</FormLabel><FormControl>
+                                      <select {...field} className="w-full p-2 border rounded-md bg-background">
+                                        <option value="linkedin">LinkedIn</option>
+                                        <option value="github">GitHub</option>
+                                        <option value="twitter">Twitter</option>
+                                      </select>
+                                    </FormControl><FormMessage /></FormItem>
+                                )}/>
+                                <FormField control={form.control} name={`socialMedia.${index}.url`} render={({field}) => (
+                                    <FormItem><FormLabel>URL</FormLabel><FormControl><Input {...field} placeholder="https://linkedin.com/in/..." /></FormControl><FormMessage /></FormItem>
+                                )}/>
+                            </div>
+                        ))}
+                         <Button type="button" variant="outline" onClick={() => appendSocial({platform: 'linkedin', url: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Social Link
+                        </Button>
                     </CardContent>
                 </Card>
 
@@ -202,15 +306,144 @@ export default function EditorPage() {
                 </Card>
 
                 <Card>
+                    <CardHeader><CardTitle>Work Experience</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {workFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-4 right-4" onClick={() => removeWork(index)}>
+                                    <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Work Experience</span>
+                                </Button>
+                                <FormField control={form.control} name={`workExperiences.${index}.company`} render={({field}) => (<FormItem><FormLabel>Company</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`workExperiences.${index}.role`} render={({field}) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <FormField control={form.control} name={`workExperiences.${index}.startDate`} render={({field}) => (<FormItem><FormLabel>Start Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Jan 2020" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                  <FormField control={form.control} name={`workExperiences.${index}.endDate`} render={({field}) => (<FormItem><FormLabel>End Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Present" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                </div>
+                                <FormField control={form.control} name={`workExperiences.${index}.description`} render={({field}) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                            </div>
+                        ))}
+                         <Button type="button" variant="outline" onClick={() => appendWork({company: '', role: '', startDate: '', endDate: '', description: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Work Experience
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader><CardTitle>Organization Experience</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {orgFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-4 right-4" onClick={() => removeOrg(index)}>
+                                    <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Organization Experience</span>
+                                </Button>
+                                <FormField control={form.control} name={`organizationExperiences.${index}.organization`} render={({field}) => (<FormItem><FormLabel>Organization</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`organizationExperiences.${index}.role`} render={({field}) => (<FormItem><FormLabel>Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField control={form.control} name={`organizationExperiences.${index}.startDate`} render={({field}) => (<FormItem><FormLabel>Start Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Jan 2020" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                    <FormField control={form.control} name={`organizationExperiences.${index}.endDate`} render={({field}) => (<FormItem><FormLabel>End Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Present" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                </div>
+                                <FormField control={form.control} name={`organizationExperiences.${index}.description`} render={({field}) => (<FormItem><FormLabel>Description</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendOrg({organization: '', role: '', startDate: '', endDate: '', description: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Organization Experience
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader><CardTitle>Education</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {eduFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-4 right-4" onClick={() => removeEdu(index)}>
+                                    <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Education</span>
+                                </Button>
+                                <FormField control={form.control} name={`educations.${index}.institution`} render={({field}) => (<FormItem><FormLabel>Institution</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`educations.${index}.degree`} render={({field}) => (<FormItem><FormLabel>Degree</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`educations.${index}.fieldOfStudy`} render={({field}) => (<FormItem><FormLabel>Field of Study</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <FormField control={form.control} name={`educations.${index}.startDate`} render={({field}) => (<FormItem><FormLabel>Start Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Aug 2018" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                    <FormField control={form.control} name={`educations.${index}.endDate`} render={({field}) => (<FormItem><FormLabel>End Date</FormLabel><FormControl><Input type="text" placeholder="e.g., May 2022" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                </div>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendEdu({institution: '', degree: '', fieldOfStudy: '', startDate: '', endDate: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Education
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader><CardTitle>Certifications</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {certFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-4 right-4" onClick={() => removeCert(index)}>
+                                    <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Certification</span>
+                                </Button>
+                                <FormField control={form.control} name={`certifications.${index}.name`} render={({field}) => (<FormItem><FormLabel>Certification Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`certifications.${index}.issuingOrganization`} render={({field}) => (<FormItem><FormLabel>Issuing Organization</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <div className="grid grid-cols-2 gap-4">
+                                <FormField control={form.control} name={`certifications.${index}.issueDate`} render={({field}) => (<FormItem><FormLabel>Issue Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Jun 2023" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`certifications.${index}.credentialId`} render={({field}) => (<FormItem><FormLabel>Credential ID</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                </div>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendCert({name: '', issuingOrganization: '', issueDate: '', credentialId: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Certification
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader><CardTitle>Courses</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {courseFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-4 right-4" onClick={() => removeCourse(index)}>
+                                    <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Course</span>
+                                </Button>
+                                <FormField control={form.control} name={`courses.${index}.name`} render={({field}) => (<FormItem><FormLabel>Course Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`courses.${index}.platform`} render={({field}) => (<FormItem><FormLabel>Platform</FormLabel><FormControl><Input {...field} placeholder="e.g., Coursera, Udemy" /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`courses.${index}.completionDate`} render={({field}) => (<FormItem><FormLabel>Completion Date</FormLabel><FormControl><Input type="text" placeholder="e.g., Mar 2023" {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendCourse({name: '', platform: '', completionDate: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Course
+                        </Button>
+                    </CardContent>
+                </Card>
+                
+                <Card>
+                    <CardHeader><CardTitle>Testimonials</CardTitle></CardHeader>
+                    <CardContent className="space-y-6">
+                        {testimonialFields.map((item, index) => (
+                            <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
+                                <Button type="button" variant="destructive" size="icon" className="h-6 w-6 absolute top-4 right-4" onClick={() => removeTestimonial(index)}>
+                                    <Trash2 className="h-4 w-4"/> <span className="sr-only">Remove Testimonial</span>
+                                </Button>
+                                <FormField control={form.control} name={`testimonials.${index}.name`} render={({field}) => (<FormItem><FormLabel>Name</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`testimonials.${index}.company`} render={({field}) => (<FormItem><FormLabel>Company / Role</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                                <FormField control={form.control} name={`testimonials.${index}.feedback`} render={({field}) => (<FormItem><FormLabel>Feedback</FormLabel><FormControl><Textarea {...field} /></FormControl><FormMessage /></FormItem>)}/>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendTestimonial({name: '', company: '', feedback: ''})}>
+                           <PlusCircle className="mr-2 h-4 w-4"/> Add Testimonial
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card>
                     <CardHeader>
                         <CardTitle>Projects</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
-                        {fields.map((item, index) => (
+                        {projectFields.map((item, index) => (
                             <div key={item.id} className="space-y-4 p-4 border rounded-md relative">
                                 <div className="flex justify-between items-center">
                                     <h3 className="font-semibold">Project {index+1}</h3>
-                                    <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => remove(index)}>
+                                    <Button type="button" variant="destructive" size="icon" className="h-6 w-6" onClick={() => removeProject(index)}>
                                         <Trash2 className="h-4 w-4"/>
                                         <span className="sr-only">Remove Project</span>
                                     </Button>
@@ -244,7 +477,7 @@ export default function EditorPage() {
                                 )}/>
                             </div>
                         ))}
-                         <Button type="button" variant="outline" onClick={() => append({title: '', description: '', imageUrl: '', link: ''})}>
+                         <Button type="button" variant="outline" onClick={() => appendProject({title: '', description: '', imageUrl: '', link: ''})}>
                            <PlusCircle className="mr-2 h-4 w-4"/> Add Project
                         </Button>
                     </CardContent>
@@ -292,3 +525,5 @@ export default function EditorPage() {
     </div>
   );
 }
+
+    
