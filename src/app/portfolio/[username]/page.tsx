@@ -52,7 +52,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
     }
 
     const { 
-        fullName, title, bio, profilePictureUrl, profilePictureShape, theme, website,
+        fullName, title, bio, profilePictureUrl, profilePictureShape, textAlign, theme, website,
         skills = [], 
         projects = [],
         workExperiences = [],
@@ -68,7 +68,10 @@ export default async function PortfolioPage({ params }: { params: { username: st
         <div className={cn("bg-background min-h-screen", theme)}>
             <AOSInitializer />
             <div id="portfolio-content" className="container mx-auto max-w-4xl p-4 sm:p-8 md:p-12 bg-background text-foreground">
-                <header className="flex flex-col sm:flex-row items-center gap-8 mb-12">
+                <header className={cn("flex flex-col items-center gap-8 mb-12", {
+                    'sm:flex-row sm:text-left': textAlign === 'text-left',
+                    'sm:flex-col sm:text-center': textAlign === 'text-center' || textAlign === 'text-right',
+                })}>
                      <div className="relative" data-aos="fade-down">
                         <Image
                             src={profilePictureUrl || "https://placehold.co/128x128.png"}
@@ -79,11 +82,16 @@ export default async function PortfolioPage({ params }: { params: { username: st
                             data-ai-hint="profile person"
                          />
                      </div>
-                     <div className="text-center sm:text-left" data-aos="fade-up">
+                     <div className={cn(textAlign, "w-full")} data-aos="fade-up">
                         <h1 className="text-4xl font-bold font-headline">{fullName || "Your Name"}</h1>
                         <p className="text-xl text-muted-foreground mt-1">{title || "Your Title"}</p>
-                        <p className="mt-4 max-w-prose text-foreground/80">{bio || "Your biography will be displayed here."}</p>
-                        <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
+                        <p className="mt-4 max-w-prose text-foreground/80 mx-auto sm:mx-0">{bio || "Your biography will be displayed here."}</p>
+                        <div className={cn("flex items-center gap-4 mt-4", {
+                            'justify-start': textAlign === 'text-left',
+                            'justify-center': textAlign === 'text-center',
+                            'sm:justify-end': textAlign === 'text-right',
+                            'justify-center sm:justify-start': !textAlign || textAlign === 'text-left',
+                         })}>
                             {website && (
                                 <Link href={website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-semibold text-accent hover:underline">
                                     <Globe className="mr-2 h-4 w-4" />

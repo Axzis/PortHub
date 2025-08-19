@@ -16,7 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Instagram, Facebook, MessageCircle, Square, Circle, AppWindow, Globe, Briefcase, Users, Calendar, Award, BookOpen, Quote } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Instagram, Facebook, MessageCircle, Square, Circle, AppWindow, Globe, Briefcase, Users, Calendar, Award, BookOpen, Quote, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
 import Image from "next/image";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -89,6 +89,7 @@ const portfolioSchema = z.object({
   bio: z.string().min(1, "Bio is required").max(300, "Bio cannot exceed 300 characters"),
   profilePictureUrl: z.string().url().optional().or(z.literal("")),
   profilePictureShape: z.enum(['rounded-full', 'rounded-lg', 'rounded-none']).default('rounded-full'),
+  textAlign: z.enum(['text-left', 'text-center', 'text-right']).default('text-left'),
   theme: z.string().default('default'),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   skills: z.array(skillSchema),
@@ -110,6 +111,7 @@ const defaultFormValues: PortfolioFormValues = {
     bio: "",
     profilePictureUrl: "",
     profilePictureShape: 'rounded-full',
+    textAlign: 'text-left',
     theme: 'default',
     website: "",
     skills: [],
@@ -331,6 +333,42 @@ export default function EditorPage() {
                                                 <RadioGroupItem value="rounded-none" id="shape-square" />
                                             </FormControl>
                                             <FormLabel htmlFor="shape-square" className="font-normal flex items-center gap-2"><Square className="w-4 h-4" /> Square</FormLabel>
+                                        </FormItem>
+                                        </RadioGroup>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                         />
+                         <FormField
+                            control={form.control}
+                            name="textAlign"
+                            render={({ field }) => (
+                                <FormItem className="space-y-3">
+                                    <FormLabel>Header Alignment</FormLabel>
+                                    <FormControl>
+                                        <RadioGroup
+                                        onValueChange={field.onChange}
+                                        defaultValue={field.value}
+                                        className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4"
+                                        >
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="text-left" id="align-left" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="align-left" className="font-normal flex items-center gap-2"><AlignLeft className="w-4 h-4" /> Left</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="text-center" id="align-center" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="align-center" className="font-normal flex items-center gap-2"><AlignCenter className="w-4 h-4" /> Center</FormLabel>
+                                        </FormItem>
+                                        <FormItem className="flex items-center space-x-2 space-y-0">
+                                            <FormControl>
+                                                <RadioGroupItem value="text-right" id="align-right" />
+                                            </FormControl>
+                                            <FormLabel htmlFor="align-right" className="font-normal flex items-center gap-2"><AlignRight className="w-4 h-4" /> Right</FormLabel>
                                         </FormItem>
                                         </RadioGroup>
                                     </FormControl>
@@ -615,7 +653,10 @@ export default function EditorPage() {
             <div className="sticky top-8">
               <h2 className="font-headline text-2xl font-bold mb-4">Live Preview</h2>
               <div className="border rounded-lg aspect-[9/16] overflow-y-auto p-4 bg-background text-foreground">
-                  <header className="flex flex-col sm:flex-row items-center gap-8 mb-12 text-center sm:text-left">
+                  <header className={cn("flex flex-col items-center gap-8 mb-12", {
+                      'sm:flex-row sm:text-left': watchedValues.textAlign === 'text-left',
+                      'sm:flex-col sm:text-center': watchedValues.textAlign === 'text-center' || watchedValues.textAlign === 'text-right',
+                  })}>
                      <div className="relative">
                         {watchedValues.profilePictureUrl ? 
                             <Image src={watchedValues.profilePictureUrl} alt="profile" width={128} height={128} className={cn("mx-auto object-cover w-32 h-32 border-4 border-card shadow-md", watchedValues.profilePictureShape)} /> 
@@ -623,11 +664,15 @@ export default function EditorPage() {
                             <div className={cn("w-32 h-32 bg-muted mx-auto border-4 border-card shadow-md", watchedValues.profilePictureShape)}/>
                         }
                      </div>
-                     <div>
+                     <div className={cn(watchedValues.textAlign, 'w-full')}>
                         <h1 className="text-4xl font-bold font-headline">{watchedValues.fullName || "Your Name"}</h1>
                         <p className="text-xl text-muted-foreground mt-1">{watchedValues.title || "Your Title"}</p>
-                        <p className="mt-4 max-w-prose text-foreground/80">{watchedValues.bio || "Your bio will appear here."}</p>
-                        <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
+                        <p className="mt-4 max-w-prose text-foreground/80 mx-auto sm:mx-0">{watchedValues.bio || "Your bio will appear here."}</p>
+                         <div className={cn("flex items-center gap-4 mt-4", {
+                            'justify-start': watchedValues.textAlign === 'text-left',
+                            'justify-center': watchedValues.textAlign === 'text-center',
+                            'justify-end': watchedValues.textAlign === 'text-right',
+                         })}>
                             {watchedValues.website && (
                                 <a href={watchedValues.website} target="_blank" rel="noopener noreferrer" className="inline-flex items-center text-sm font-semibold text-accent hover:underline">
                                     <Globe className="mr-2 h-4 w-4" />
@@ -782,5 +827,3 @@ export default function EditorPage() {
     </div>
   );
 }
-
-    
