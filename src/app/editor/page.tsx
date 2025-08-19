@@ -4,12 +4,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useAuth } from "@/contexts/auth-context";
-import { db, storage } from "@/lib/firebase";
+import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
 
 import { Button } from "@/components/ui/button";
@@ -158,11 +157,23 @@ export default function EditorPage() {
   const handleImageUpload = async (file: File, fieldName: any) => {
     if (!user) return;
     const toastId = toast({ title: "Uploading image...", description: "Please wait." }).id;
-    
-    const storageRef = ref(storage, `images/${user.uid}/${Date.now()}_${file.name}`);
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "portfoliohub_preset"); // IMPORTANT: Use your unsigned upload preset name
+
     try {
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      const downloadURL = data.secure_url;
 
       form.setValue(fieldName, downloadURL);
       
@@ -528,5 +539,3 @@ export default function EditorPage() {
     </div>
   );
 }
-
-    
