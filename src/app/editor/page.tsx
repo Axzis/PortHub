@@ -16,7 +16,7 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon } from "lucide-react";
+import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle } from "lucide-react";
 import Image from "next/image";
 
 const projectSchema = z.object({
@@ -156,7 +156,7 @@ export default function EditorPage() {
 
   const handleImageUpload = async (file: File, fieldName: any) => {
     if (!user) return;
-    const toastId = toast({ title: "Uploading image...", description: "Please wait." }).id;
+    const toastNotification = toast({ title: "Uploading image...", description: "Please wait." });
 
     const formData = new FormData();
     formData.append("file", file);
@@ -177,9 +177,9 @@ export default function EditorPage() {
 
       form.setValue(fieldName, downloadURL);
       
-      toast.update(toastId, { title: "Success!", description: "Image uploaded." });
+      toastNotification.update({ id: toastNotification.id, title: "Success!", description: "Image uploaded." });
     } catch (error) {
-      toast.update(toastId, { variant: "destructive", title: "Upload failed", description: "Could not upload image." });
+      toastNotification.update({ id: toastNotification.id, variant: "destructive", title: "Upload failed", description: "Could not upload image." });
     }
   };
 
@@ -309,7 +309,7 @@ export default function EditorPage() {
                                  <FormControl>
                                     <Input 
                                         placeholder="JavaScript, Python, Figma" 
-                                        value={field.value.join(', ')} 
+                                        value={Array.isArray(field.value) ? field.value.join(', ') : ''} 
                                         onChange={(e) => field.onChange(e.target.value.split(',').map(skill => skill.trim()).filter(skill => skill))}
                                     />
                                  </FormControl>
@@ -516,7 +516,7 @@ export default function EditorPage() {
                   <div>
                     <h3 className="text-lg font-bold font-headline mb-4 text-center">Skills</h3>
                     <div className="flex flex-wrap gap-2 justify-center">
-                        {watchedValues.skills?.map((skill, i) => skill && <span key={i} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm">{skill}</span>)}
+                        {Array.isArray(watchedValues.skills) && watchedValues.skills?.map((skill, i) => skill && <span key={i} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm">{skill}</span>)}
                     </div>
                   </div>
                    <hr className="my-6" />
@@ -539,3 +539,5 @@ export default function EditorPage() {
     </div>
   );
 }
+
+    
