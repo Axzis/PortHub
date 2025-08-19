@@ -138,8 +138,10 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
+         // This is a new user, take them to finish their profile.
          router.push(`/finish-profile?uid=${user.uid}&email=${user.email}`);
       } else {
+        // Existing user, just go to the dashboard.
         router.push('/dashboard');
       }
 
