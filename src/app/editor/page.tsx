@@ -100,6 +100,8 @@ export default function EditorPage() {
   const { toast } = useToast();
   const [loadingData, setLoadingData] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const cloudinaryCloudName = "dxciays0k";
+  const cloudinaryUploadPreset = "portfoliohub_preset";
 
   const form = useForm<PortfolioFormValues>({
     resolver: zodResolver(portfolioSchema),
@@ -160,16 +162,17 @@ export default function EditorPage() {
 
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("upload_preset", "portfoliohub_preset"); // IMPORTANT: Use your unsigned upload preset name
+    formData.append("upload_preset", cloudinaryUploadPreset);
 
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`, {
+      const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudinaryCloudName}/image/upload`, {
         method: "POST",
         body: formData,
       });
 
       if (!response.ok) {
-        throw new Error("Upload failed");
+         const errorData = await response.json();
+         throw new Error(errorData.error.message || "Upload failed");
       }
 
       const data = await response.json();
@@ -178,8 +181,9 @@ export default function EditorPage() {
       form.setValue(fieldName, downloadURL);
       
       toastNotification.update({ id: toastNotification.id, title: "Success!", description: "Image uploaded." });
-    } catch (error) {
-      toastNotification.update({ id: toastNotification.id, variant: "destructive", title: "Upload failed", description: "Could not upload image." });
+    } catch (error: any) {
+      console.error("Cloudinary Upload Error:", error);
+      toastNotification.update({ id: toastNotification.id, variant: "destructive", title: "Upload failed", description: error.message || "Could not upload image." });
     }
   };
 
@@ -539,5 +543,3 @@ export default function EditorPage() {
     </div>
   );
 }
-
-    
