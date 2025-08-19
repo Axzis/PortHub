@@ -109,7 +109,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
               title: "Your Title",
               bio: "A short bio about yourself.",
               profilePictureUrl: "",
-              skills: ["React", "Next.js", "Firebase"],
+              skills: [{name: "React"}, {name: "Next.js"}, {name: "Firebase"}],
               projects: [],
               theme: 'default',
             });

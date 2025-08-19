@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Linkedin, Github, Twitter, Quote, Calendar, Building, GraduationCap, Award, BookOpen, Briefcase, Users, Instagram, Facebook, MessageCircle } from 'lucide-react';
 import { PortfolioActions } from '@/components/portfolio-actions';
+import { AOSInitializer } from '@/components/AOSInitializer';
 
 async function getPortfolioData(username: string) {
     const q = query(collection(db, "users"), where("username", "==", username.toLowerCase()));
@@ -64,6 +65,7 @@ export default async function PortfolioPage({ params }: { params: { username: st
 
     return (
         <div className="bg-background min-h-screen">
+            <AOSInitializer />
             <div id="portfolio-content" className="container mx-auto max-w-4xl p-4 sm:p-8 md:p-12">
                 <header className="flex flex-col sm:flex-row items-center gap-8 mb-12">
                      <div className="relative" data-aos="fade-down">
@@ -101,9 +103,9 @@ export default async function PortfolioPage({ params }: { params: { username: st
                         <section id="skills" data-aos="fade-up">
                             <h2 className="text-3xl font-bold font-headline text-center mb-8">Skills</h2>
                             <div className="flex flex-wrap justify-center gap-3">
-                                {skills.map((skill: string, index: number) => (
-                                    <Badge key={skill} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20" data-aos="zoom-in" data-aos-delay={index * 50}>
-                                        {skill}
+                                {skills.map((skill: any, index: number) => (
+                                    <Badge key={index} variant="secondary" className="text-base px-4 py-2 bg-accent/10 text-accent hover:bg-accent/20 border border-accent/20" data-aos="zoom-in" data-aos-delay={index * 50}>
+                                        {skill.name}
                                     </Badge>
                                 ))}
                             </div>

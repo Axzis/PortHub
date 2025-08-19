@@ -19,6 +19,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, PlusCircle, Trash2, UploadCloud, Linkedin, Github, Twitter, Link as LinkIcon, Instagram, Facebook, MessageCircle } from "lucide-react";
 import Image from "next/image";
 
+const skillSchema = z.object({
+  name: z.string().min(1, "Skill name is required"),
+});
+
 const projectSchema = z.object({
   title: z.string().min(1, "Project title is required"),
   description: z.string().min(1, "Project description is required"),
@@ -81,7 +85,7 @@ const portfolioSchema = z.object({
   bio: z.string().min(1, "Bio is required").max(300, "Bio cannot exceed 300 characters"),
   profilePictureUrl: z.string().url().optional().or(z.literal("")),
   website: z.string().url("Must be a valid URL").optional().or(z.literal("")),
-  skills: z.array(z.string().min(1)).min(1, "At least one skill is required"),
+  skills: z.array(skillSchema),
   projects: z.array(projectSchema),
   workExperiences: z.array(workExperienceSchema),
   organizationExperiences: z.array(organizationExperienceSchema),
@@ -125,6 +129,7 @@ export default function EditorPage() {
     defaultValues: defaultFormValues,
   });
 
+  const { fields: skillFields, append: appendSkill, remove: removeSkill } = useFieldArray({ control: form.control, name: "skills" });
   const { fields: projectFields, append: appendProject, remove: removeProject } = useFieldArray({ control: form.control, name: "projects" });
   const { fields: workFields, append: appendWork, remove: removeWork } = useFieldArray({ control: form.control, name: "workExperiences" });
   const { fields: orgFields, append: appendOrg, remove: removeOrg } = useFieldArray({ control: form.control, name: "organizationExperiences" });
@@ -151,7 +156,10 @@ export default function EditorPage() {
         const docSnap = await getDoc(portfolioDocRef);
         if (docSnap.exists()) {
           const fetchedData = docSnap.data();
-          // Merge fetched data with defaults to avoid undefined values
+          // Fallback for old skills string[] format
+          if (fetchedData.skills && fetchedData.skills.every((s: any) => typeof s === 'string')) {
+              fetchedData.skills = fetchedData.skills.map((s: string) => ({ name: s }));
+          }
           const mergedData = { ...defaultFormValues, ...fetchedData };
           form.reset(mergedData as PortfolioFormValues);
         }
@@ -312,27 +320,29 @@ export default function EditorPage() {
                 <Card>
                     <CardHeader><CardTitle>Skills</CardTitle></CardHeader>
                     <CardContent className="space-y-4">
-                        <FormField
-                          control={form.control}
-                          name="skills"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Skills</FormLabel>
-                              <FormControl>
-                                <Textarea
-                                  placeholder="Enter one skill per line"
-                                  value={Array.isArray(field.value) ? field.value.join('\n') : ''}
-                                  onChange={(e) => field.onChange(e.target.value.split('\n').filter(skill => skill.trim() !== ''))}
-                                  rows={5}
+                        {skillFields.map((item, index) => (
+                            <div key={item.id} className="flex items-center gap-2">
+                                <FormField
+                                    control={form.control}
+                                    name={`skills.${index}.name`}
+                                    render={({ field }) => (
+                                        <FormItem className="flex-1">
+                                            <FormControl>
+                                                <Input placeholder={`Skill ${index + 1}`} {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                              </FormControl>
-                              <FormDescription>
-                                Enter each skill on a new line.
-                              </FormDescription>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                                <Button type="button" variant="destructive" size="icon" onClick={() => removeSkill(index)}>
+                                    <Trash2 className="h-4 w-4" />
+                                    <span className="sr-only">Remove Skill</span>
+                                </Button>
+                            </div>
+                        ))}
+                        <Button type="button" variant="outline" onClick={() => appendSkill({ name: '' })}>
+                            <PlusCircle className="mr-2 h-4 w-4" /> Add Skill
+                        </Button>
                     </CardContent>
                 </Card>
 
@@ -533,7 +543,7 @@ export default function EditorPage() {
                   <div>
                     <h3 className="text-lg font-bold font-headline mb-4 text-center">Skills</h3>
                     <div className="flex flex-wrap gap-2 justify-center">
-                        {Array.isArray(watchedValues.skills) && watchedValues.skills?.map((skill, i) => skill && <span key={i} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm">{skill}</span>)}
+                        {Array.isArray(watchedValues.skills) && watchedValues.skills?.map((skill, i) => skill && skill.name && <span key={i} className="bg-primary/10 text-primary border border-primary/20 px-3 py-1 rounded-full text-sm">{skill.name}</span>)}
                     </div>
                   </div>
                    <hr className="my-6" />

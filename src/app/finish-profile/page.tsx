@@ -98,7 +98,7 @@ function FinishProfileForm() {
             bio: "A short bio about yourself.",
             profilePictureUrl: user?.photoURL || "",
             website: "",
-            skills: ["React", "Next.js", "Firebase"],
+            skills: [{name: "React"}, {name: "Next.js"}, {name: "Firebase"}],
             projects: [],
             workExperiences: [],
             organizationExperiences: [],
@@ -170,5 +170,3 @@ export default function FinishProfilePage() {
         </Suspense>
     )
 }
-
-    
