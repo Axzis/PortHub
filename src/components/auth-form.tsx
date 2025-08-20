@@ -109,8 +109,19 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
               title: "Your Title",
               bio: "A short bio about yourself.",
               profilePictureUrl: "",
+              profilePictureShape: 'rounded-full',
+              profilePictureSize: 'medium',
+              textAlign: 'text-left',
+              website: "",
               skills: [{name: "React"}, {name: "Next.js"}, {name: "Firebase"}],
               projects: [],
+              workExperiences: [],
+              organizationExperiences: [],
+              educations: [],
+              certifications: [],
+              courses: [],
+              testimonials: [],
+              socialMedia: [],
               theme: 'default',
             });
           router.push("/dashboard");
@@ -245,3 +256,5 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
     </div>
   );
 }
+
+    
